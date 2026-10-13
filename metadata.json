@@ -1,0 +1,8 @@
+{
+  "name": "AquaTrack - Water QR Delivery & Billing",
+  "description": "Progressive Web App for water delivery companies: Client and Jar QR scanning, automated instant billing, Cash/bKash/Nagad collection, client and supplier ledgers, and comprehensive reporting.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

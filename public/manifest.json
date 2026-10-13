@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "AquaTrack - Water QR Delivery & Billing",
+  "short_name": "AquaTrack",
+  "description": "Smart QR Delivery, Instant Billing & Ledger System for Water Companies",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0284c7",
+  "background_color": "#f8fafc",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
