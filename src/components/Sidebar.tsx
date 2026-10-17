@@ -16,6 +16,7 @@ import {
   Clock,
   Droplets,
   PlusCircle,
+  LogOut,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -32,7 +33,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { currentUser, activeTab, setActiveTab, orderRequests, language, t } = useApp();
+  const { currentUser, activeTab, setActiveTab, orderRequests, language, t, logout } = useApp();
 
   const handleNavClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -284,6 +285,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </button>
           </div>
         )}
+
+        {/* User Session Logout Button */}
+        <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+          <button
+            onClick={() => {
+              onClose();
+              logout();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>{language === 'bn' ? 'অ্যাকাউন্ট থেকে লগআউট' : 'Sign Out / Logout'}</span>
+          </button>
+        </div>
       </aside>
     </>
   );

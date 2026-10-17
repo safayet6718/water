@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   X,
   Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 const AVATAR_PRESETS = [
@@ -51,6 +54,8 @@ export const UserEditModal: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<Role>('delivery');
   const [avatar, setAvatar] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
   const [active, setActive] = useState(true);
@@ -62,6 +67,7 @@ export const UserEditModal: React.FC = () => {
       setPhone(editingUser.phone || '');
       setRole(editingUser.role || 'delivery');
       setAvatar(editingUser.avatar || '');
+      setPassword(editingUser.password || 'password123');
       setAddress(editingUser.address || '');
       setArea(editingUser.area || '');
       setActive(editingUser.active ?? true);
@@ -98,6 +104,7 @@ export const UserEditModal: React.FC = () => {
       name: name.trim(),
       phone: phone.trim(),
       role,
+      password: password.trim() || editingUser.password || 'password123',
       avatar: avatar.trim() || undefined,
       address: address.trim() || undefined,
       area: area.trim() || undefined,
@@ -307,6 +314,34 @@ export const UserEditModal: React.FC = () => {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="01521311748 / 01764996718"
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-white font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Login Password Field */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {language === 'bn' ? 'লগইন পাসওয়ার্ড (Login Password) *' : 'Login Password *'}
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-[11px] text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                <span>{showPassword ? (language === 'bn' ? 'লুকান' : 'Hide') : (language === 'bn' ? 'দেখুন' : 'Show')}</span>
+              </button>
+            </div>
+            <div className="relative">
+              <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="কমপক্ষে ৪ অক্ষর"
+                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-white"
               />
             </div>
           </div>

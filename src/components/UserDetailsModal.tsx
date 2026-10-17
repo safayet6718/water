@@ -19,10 +19,13 @@ import {
   UserCheck,
   ExternalLink,
   Receipt,
+  LogOut,
 } from 'lucide-react';
 
 export const UserDetailsModal: React.FC = () => {
   const {
+    currentUser,
+    logout,
     viewingUser,
     closeUserDetailsModal,
     openUserEditModal,
@@ -324,16 +327,29 @@ export const UserDetailsModal: React.FC = () => {
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between gap-3">
-          <button
-            onClick={() => {
-              switchUserById(viewingUser.id);
-              closeUserDetailsModal();
-            }}
-            className="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>{language === 'bn' ? 'এই ইউজারে লগইন' : 'Switch to this User'}</span>
-          </button>
+          {viewingUser.id === currentUser.id ? (
+            <button
+              onClick={() => {
+                closeUserDetailsModal();
+                logout();
+              }}
+              className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer border border-rose-200 dark:border-rose-900/60"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{language === 'bn' ? 'লগআউট করুন' : 'Sign Out'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                switchUserById(viewingUser.id);
+                closeUserDetailsModal();
+              }}
+              className="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>{language === 'bn' ? 'এই ইউজারে লগইন' : 'Switch to this User'}</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-2">
             <button

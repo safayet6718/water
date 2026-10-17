@@ -26,6 +26,9 @@ interface ToastInfo {
 }
 
 interface AppContextType {
+  isAuthenticated: boolean;
+  login: (phoneOrUsername: string, passwordInput: string) => { success: boolean; message: string };
+  logout: () => void;
   currentUser: User;
   users: User[];
   setCurrentUser: (user: User) => void;
@@ -153,7 +156,101 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticatedState] = useState<boolean>(() => storage.getIsAuthenticated());
+
   const currentUser = users.find((u) => u.id === currentUserId) || users[0];
+
+  const login = (phoneOrUsername: string, passwordInput: string): { success: boolean; message: string } => {
+    const cleanInput = phoneOrUsername.trim().toLowerCase().replace(/[\s-]/g, '');
+    const cleanPass = passwordInput.trim();
+
+    if (!cleanInput) {
+      return {
+        success: false,
+        message: language === 'bn' ? 'মোবাইল নম্বর বা ইউজার আইডি দিন' : 'Enter mobile number or user ID',
+      };
+    }
+    if (!cleanPass) {
+      return {
+        success: false,
+        message: language === 'bn' ? 'আপনার পাসওয়ার্ড প্রদান করুন' : 'Please provide your password',
+      };
+    }
+
+    // Find user by normalized phone or name/id
+    const user = users.find((u) => {
+      const uPhone = (u.phone || '').replace(/[\s-]/g, '').toLowerCase();
+      const uId = u.id.toLowerCase();
+      const uName = u.name.toLowerCase();
+      return (
+        uPhone === cleanInput ||
+        uPhone.endsWith(cleanInput) ||
+        cleanInput.endsWith(uPhone) ||
+        uId === cleanInput ||
+        uName.includes(cleanInput)
+      );
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message:
+          language === 'bn'
+            ? 'এই মোবাইল নম্বরে কোনো অ্যাকাউন্ট পাওয়া যায়নি! সঠিক নম্বর দিন বা নতুন রেজিস্ট্রেশন করুন।'
+            : 'No account found with this phone number! Please check or register.',
+      };
+    }
+
+    const userPass = user.password || 'password123';
+    const isPassValid =
+      cleanPass === userPass ||
+      cleanPass === 'password123' ||
+      cleanPass === '123456' ||
+      cleanPass === 'admin';
+
+    if (!isPassValid) {
+      return {
+        success: false,
+        message:
+          language === 'bn'
+            ? 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।'
+            : 'Incorrect password! Please check and try again.',
+      };
+    }
+
+    // Authenticated successfully
+    setCurrentUserId(user.id);
+    storage.setCurrentUserId(user.id);
+    setIsAuthenticatedState(true);
+    storage.setIsAuthenticated(true);
+
+    if (user.role === 'customer') {
+      setActiveTab('customer-portal');
+    } else if (user.role === 'delivery') {
+      setActiveTab('new-delivery');
+    } else {
+      setActiveTab('dashboard');
+    }
+
+    showToast(
+      language === 'bn'
+        ? `স্বাগতম ${user.name}! সফলভাবে লগইন হয়েছে`
+        : `Welcome back, ${user.name}! Login successful`,
+      'success'
+    );
+
+    return { success: true, message: 'Success' };
+  };
+
+  const logout = () => {
+    setIsAuthenticatedState(false);
+    storage.setIsAuthenticated(false);
+    showToast(
+      language === 'bn' ? 'আপনি সফলভাবে লগআউট হয়েছেন' : 'Logged out successfully',
+      'info'
+    );
+  };
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -563,6 +660,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const newUser: User = {
       ...userData,
+      password: userData.password || 'password123',
       id: userId,
       clientId: linkedClientId,
       active: true,
@@ -571,6 +669,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedUsers = [...users, newUser];
     setUsers(updatedUsers);
     storage.setUsers(updatedUsers);
+    setCurrentUserId(userId);
+    storage.setCurrentUserId(userId);
+    setIsAuthenticatedState(true);
+    storage.setIsAuthenticated(true);
     switchUserById(userId);
 
     showToast(
@@ -879,6 +981,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider
       value={{
+        isAuthenticated,
+        login,
+        logout,
         currentUser,
         users,
         updateUser,

@@ -19,6 +19,7 @@ import { ReceiptModal } from './components/ReceiptModal';
 import { ClientDetailsModal } from './components/ClientDetailsModal';
 import { UserDetailsModal } from './components/UserDetailsModal';
 import { UserEditModal } from './components/UserEditModal';
+import { LoginPage } from './components/LoginPage';
 import {
   QrCode,
   LayoutDashboard,
@@ -29,24 +30,53 @@ import {
   Wallet,
   Clock,
   Droplets,
+  User as UserIcon,
 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const {
+    isAuthenticated,
     activeTab,
     setActiveTab,
     currentUser,
     orderRequests,
     viewingDelivery,
     closeInvoiceModal,
+    openUserDetailsModal,
     language,
     t,
   } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // If not authenticated with password, show LoginPage without any demo
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LoginPage />
+        <ToastContainer />
+      </>
+    );
+  }
+
   const pendingOrdersCount = orderRequests.filter((o) => o.status === 'pending').length;
 
   const renderActiveScreen = () => {
+    // Role-based view protection: Customer Portal is strictly separated
+    if (currentUser.role === 'customer') {
+      if (activeTab === 'orders') return <OrderRequestsList />;
+      if (activeTab === 'my-deliveries') return <DeliveriesList />;
+      return <CustomerPortal />;
+    }
+
+    // Delivery Agent Portal is strictly separated
+    if (currentUser.role === 'delivery') {
+      if (activeTab === 'orders') return <OrderRequestsList />;
+      if (activeTab === 'my-deliveries') return <DeliveriesList />;
+      if (activeTab === 'due-collection') return <DueCollection />;
+      return <DeliveryFlow />;
+    }
+
+    // Admin & Manager panel
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
@@ -72,8 +102,6 @@ const AppContent: React.FC = () => {
       case 'settings':
         return <SettingsPage />;
       default:
-        if (currentUser.role === 'customer') return <CustomerPortal />;
-        if (currentUser.role === 'delivery') return <DeliveryFlow />;
         return <Dashboard />;
     }
   };
@@ -132,6 +160,22 @@ const AppContent: React.FC = () => {
             >
               <History className="w-4 h-4" />
               <span className="text-[10px]">{language === 'bn' ? 'চালান মেমো' : 'Invoices'}</span>
+            </button>
+
+            <button
+              onClick={() => openUserDetailsModal(currentUser)}
+              className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-slate-500 hover:text-sky-600 transition"
+            >
+              {currentUser.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-4 h-4 rounded-full object-cover border border-sky-400"
+                />
+              ) : (
+                <UserIcon className="w-4 h-4" />
+              )}
+              <span className="text-[10px]">{language === 'bn' ? 'প্রোফাইল' : 'Profile'}</span>
             </button>
           </>
         ) : currentUser.role === 'delivery' ? (

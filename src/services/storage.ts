@@ -30,6 +30,7 @@ const STORAGE_KEYS = {
   CASH_HANDOVERS: 'aquatrack_cash_handovers',
   ORDER_REQUESTS: 'aquatrack_order_requests',
   LANG: 'aquatrack_language',
+  IS_AUTHENTICATED: 'aquatrack_is_authenticated',
 };
 
 export const defaultUsers: User[] = [
@@ -37,6 +38,7 @@ export const defaultUsers: User[] = [
     id: 'user-admin',
     name: 'Safayet Hossain (Malik)',
     phone: '01521311748',
+    password: 'password123',
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
     active: true,
@@ -47,6 +49,7 @@ export const defaultUsers: User[] = [
     id: 'user-deliv-1',
     name: 'Rahim Mia (Rider 1)',
     phone: '01764996718',
+    password: 'password123',
     role: 'delivery',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     active: true,
@@ -57,6 +60,7 @@ export const defaultUsers: User[] = [
     id: 'user-deliv-2',
     name: 'Kamal Uddin (Rider 2)',
     phone: '01764996718',
+    password: 'password123',
     role: 'delivery',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     active: true,
@@ -67,6 +71,7 @@ export const defaultUsers: User[] = [
     id: 'user-manager',
     name: 'Tanvir Ahmed (Accountant)',
     phone: '01521311748',
+    password: 'password123',
     role: 'manager',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
     active: true,
@@ -77,6 +82,7 @@ export const defaultUsers: User[] = [
     id: 'user-cust-1',
     name: 'Dr. Mahbubur Rahman (Customer)',
     phone: '01712-334455',
+    password: 'password123',
     role: 'customer',
     clientId: 'cl-1',
     address: 'House 42, Road 5, Dhanmondi',
@@ -88,6 +94,7 @@ export const defaultUsers: User[] = [
     id: 'user-cust-2',
     name: 'Green Valley IT Solutions (Customer)',
     phone: '01819-445566',
+    password: 'password123',
     role: 'customer',
     clientId: 'cl-2',
     address: 'Level 4, Navana Tower, Gulshan 1',
@@ -682,15 +689,22 @@ class AppStorageService {
     const list = this.getItem(STORAGE_KEYS.USERS, defaultUsers);
     let updated = false;
     const migrated = list.map((u) => {
-      if (u.id === 'user-admin' && u.phone !== '01521311748') {
-        updated = true;
-        return { ...u, phone: '01521311748' };
+      let changed = false;
+      let user = { ...u };
+      if (!user.password) {
+        user.password = 'password123';
+        changed = true;
       }
-      if (u.id === 'user-deliv-1' && u.phone !== '01764996718') {
-        updated = true;
-        return { ...u, phone: '01764996718' };
+      if (user.id === 'user-admin' && user.phone !== '01521311748') {
+        user.phone = '01521311748';
+        changed = true;
       }
-      return u;
+      if (user.id === 'user-deliv-1' && user.phone !== '01764996718') {
+        user.phone = '01764996718';
+        changed = true;
+      }
+      if (changed) updated = true;
+      return user;
     });
     if (updated) {
       this.setItem(STORAGE_KEYS.USERS, migrated);
@@ -700,6 +714,13 @@ class AppStorageService {
   }
   setUsers(users: User[]): void {
     this.setItem(STORAGE_KEYS.USERS, users);
+  }
+
+  getIsAuthenticated(): boolean {
+    return this.getItem(STORAGE_KEYS.IS_AUTHENTICATED, false);
+  }
+  setIsAuthenticated(isAuth: boolean): void {
+    this.setItem(STORAGE_KEYS.IS_AUTHENTICATED, isAuth);
   }
 
   getCurrentUserId(): string {

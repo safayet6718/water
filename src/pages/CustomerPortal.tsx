@@ -449,8 +449,15 @@ export const CustomerPortal: React.FC = () => {
             {myDeliveries.map((deliv) => (
               <div key={deliv.id} className="py-3 flex justify-between items-center text-xs">
                 <div>
-                  <div className="font-bold text-slate-900 dark:text-white">{deliv.invoiceNo}</div>
-                  <div className="text-[10px] text-slate-400">
+                  <button
+                    onClick={() => setViewDeliveryId(deliv.id)}
+                    className="font-bold text-sky-600 hover:text-sky-800 hover:underline cursor-pointer flex items-center gap-1 font-mono text-xs"
+                    title={language === 'bn' ? 'চালান ও রসিদ দেখতে ক্লিক করুন' : 'Click to view invoice receipt'}
+                  >
+                    <Receipt className="w-3.5 h-3.5 text-sky-500" />
+                    <span>{deliv.invoiceNo}</span>
+                  </button>
+                  <div className="text-[10px] text-slate-400 mt-0.5">
                     {new Date(deliv.createdAt).toLocaleDateString()} • {deliv.itemCount} Jars ({deliv.totalLiters}L)
                   </div>
                 </div>
@@ -462,7 +469,8 @@ export const CustomerPortal: React.FC = () => {
                   </div>
                   <button
                     onClick={() => setViewDeliveryId(deliv.id)}
-                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-sky-700"
+                    className="p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 cursor-pointer transition"
+                    title={language === 'bn' ? 'রসিদ দেখুন' : 'View Receipt'}
                   >
                     <Receipt className="w-4 h-4" />
                   </button>

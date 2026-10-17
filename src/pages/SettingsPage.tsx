@@ -39,6 +39,7 @@ export const SettingsPage: React.FC = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserPhone, setNewUserPhone] = useState('01764996718');
+  const [newUserPassword, setNewUserPassword] = useState('password123');
   const [newUserRole, setNewUserRole] = useState<'admin' | 'delivery' | 'manager' | 'customer'>('delivery');
   const [newUserAvatar, setNewUserAvatar] = useState('');
   const [newUserAddress, setNewUserAddress] = useState('');
@@ -519,6 +520,7 @@ export const SettingsPage: React.FC = () => {
                 addUser({
                   name: newUserName.trim(),
                   phone: newUserPhone.trim(),
+                  password: newUserPassword.trim() || 'password123',
                   role: newUserRole,
                   avatar: newUserAvatar.trim() || undefined,
                   address: newUserAddress.trim() || undefined,
@@ -527,6 +529,7 @@ export const SettingsPage: React.FC = () => {
                 });
                 setNewUserName('');
                 setNewUserPhone('01764996718');
+                setNewUserPassword('password123');
                 setNewUserAvatar('');
                 setShowAddUserModal(false);
               }}
@@ -574,6 +577,20 @@ export const SettingsPage: React.FC = () => {
                   value={newUserPhone}
                   onChange={(e) => setNewUserPhone(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Login Password *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newUserPassword}
+                  onChange={(e) => setNewUserPassword(e.target.value)}
+                  placeholder="e.g. 123456 / password123"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold"
                 />
               </div>
 

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { PWAInstallButton } from './PWAInstallButton';
-import { AuthModal } from './AuthModal';
 import {
   Droplets,
   Languages,
@@ -13,6 +12,7 @@ import {
   UserCheck,
   UserPlus,
   LogIn,
+  LogOut,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -30,10 +30,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     language,
     setLanguage,
     settings,
-    resetAllData,
+    logout,
   } = useApp();
-
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
     <>
@@ -84,13 +82,36 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
               <span>{language === 'bn' ? 'বাংলা' : 'EN'}</span>
             </button>
 
-            {/* Quick Role Switcher / Account Button */}
+            {/* Active Workspace / Role Indicator Badge */}
+            {currentUser.role === 'admin' ? (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-black text-xs">
+                <Shield className="w-3.5 h-3.5" />
+                <span>{language === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel'}</span>
+              </div>
+            ) : currentUser.role === 'customer' ? (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 font-black text-xs">
+                <Droplets className="w-3.5 h-3.5" />
+                <span>{language === 'bn' ? 'গ্রাহক পোর্টাল' : 'Customer Portal'}</span>
+              </div>
+            ) : currentUser.role === 'delivery' ? (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-black text-xs">
+                <Bike className="w-3.5 h-3.5" />
+                <span>{language === 'bn' ? 'রাইডার পোর্টাল' : 'Rider App'}</span>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-black text-xs">
+                <Calculator className="w-3.5 h-3.5" />
+                <span>{language === 'bn' ? 'ম্যানেজার প্যানেল' : 'Manager Panel'}</span>
+              </div>
+            )}
+
+            {/* User Profile & Account Dropdown */}
             <div className="relative group">
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => openUserDetailsModal(currentUser)}
                   className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-                  title={language === 'bn' ? 'প্রোফাইল দেখতে ক্লিক করুন' : 'Click to view profile'}
+                  title={language === 'bn' ? 'প্রোফাইল বিবরণ দেখতে ক্লিক করুন' : 'Click to view profile'}
                 >
                   {currentUser.avatar ? (
                     <img
@@ -118,19 +139,19 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                 </button>
               </div>
 
-              {/* Dropdown to test roles quickly and edit profile */}
-              <div className="absolute right-0 top-full mt-1 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
-                {/* Active user header with quick edit */}
+              {/* User Dropdown Menu */}
+              <div className="absolute right-0 top-full mt-1 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                {/* Active user info */}
                 <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 mb-2 border border-slate-100 dark:border-slate-700">
                   <div className="flex items-center gap-2.5">
                     {currentUser.avatar ? (
                       <img
                         src={currentUser.avatar}
                         alt={currentUser.name}
-                        className="w-9 h-9 rounded-xl object-cover border border-sky-400"
+                        className="w-10 h-10 rounded-xl object-cover border border-sky-400"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-black">
+                      <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-black">
                         {currentUser.name.charAt(0)}
                       </div>
                     )}
@@ -141,6 +162,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                       <div className="text-[10px] text-slate-400 font-mono">
                         {currentUser.phone}
                       </div>
+                      <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 mt-0.5">
+                        {currentUser.role}
+                      </span>
                     </div>
                   </div>
 
@@ -155,97 +179,68 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                       onClick={() => openUserEditModal(currentUser)}
                       className="py-1 px-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] text-center shadow-xs transition cursor-pointer"
                     >
-                      {language === 'bn' ? 'ছবি ও তথ্য এডিট' : 'Edit Profile'}
+                      {language === 'bn' ? 'ছবি ও পাসওয়ার্ড' : 'Edit & Password'}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  <span>{language === 'bn' ? 'ইউজার নির্বাচন করুন' : 'Switch Demo User'}</span>
-                  <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    className="text-sky-600 hover:underline flex items-center gap-0.5 cursor-pointer"
-                  >
-                    <UserPlus className="w-3 h-3" />
-                    <span>{language === 'bn' ? 'নতুন ইউজার' : 'New User'}</span>
-                  </button>
-                </div>
-
-                <div className="space-y-1 max-h-48 overflow-y-auto">
-                  {users.map((u) => (
+                {/* Role Specific Actions */}
+                <div className="space-y-1">
+                  {currentUser.role === 'admin' && (
                     <button
-                      key={u.id}
-                      onClick={() => switchUserById(u.id)}
-                      className={`w-full text-left p-2 rounded-xl text-xs flex items-center justify-between transition cursor-pointer ${
-                        u.id === currentUser.id
-                          ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-bold'
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                      }`}
+                      onClick={() => setActiveTab('settings')}
+                      className="w-full text-left p-2 rounded-xl text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition cursor-pointer font-bold"
                     >
-                      <div className="flex items-center gap-2">
-                        {u.avatar ? (
-                          <img
-                            src={u.avatar}
-                            alt={u.name}
-                            className="w-5 h-5 rounded-full object-cover"
-                          />
-                        ) : u.role === 'admin' ? (
-                          <Shield className="w-3.5 h-3.5 text-amber-600" />
-                        ) : u.role === 'delivery' ? (
-                          <Bike className="w-3.5 h-3.5 text-emerald-600" />
-                        ) : u.role === 'customer' ? (
-                          <Droplets className="w-3.5 h-3.5 text-cyan-600" />
-                        ) : (
-                          <Calculator className="w-3.5 h-3.5 text-purple-600" />
-                        )}
-                        <div>
-                          <div className="truncate max-w-[130px]">{u.name}</div>
-                          <div className="text-[10px] text-slate-400 font-mono">{u.phone}</div>
-                        </div>
-                      </div>
-                      {u.id === currentUser.id && <UserCheck className="w-3.5 h-3.5 text-sky-600" />}
+                      <UserCheck className="w-3.5 h-3.5 text-sky-600" />
+                      <span>{language === 'bn' ? 'কর্মী ও ইউজার ম্যানেজমেন্ট' : 'Manage Users & Staff'}</span>
                     </button>
-                  ))}
-                </div>
+                  )}
 
-                <div className="border-t border-slate-100 dark:border-slate-800 mt-2 pt-1.5 space-y-1">
-                  <button
-                    onClick={() => {
-                      setActiveTab('settings');
-                    }}
-                    className="w-full text-left p-2 rounded-xl text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition cursor-pointer font-bold"
-                  >
-                    <UserCheck className="w-3.5 h-3.5 text-sky-600" />
-                    <span>{language === 'bn' ? 'সকল ইউজার ম্যানেজমেন্ট' : 'Manage All Users'}</span>
-                  </button>
+                  {currentUser.role === 'admin' && (
+                    <button
+                      onClick={() => setActiveTab('customer-portal')}
+                      className="w-full text-left p-2 rounded-xl text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition cursor-pointer"
+                    >
+                      <Droplets className="w-3.5 h-3.5 text-cyan-600" />
+                      <span>{language === 'bn' ? 'গ্রাহক ভিউ প্রিভিউ করুন' : 'Preview Customer View'}</span>
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    className="w-full text-left p-2 rounded-xl text-xs text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/40 flex items-center gap-2 transition cursor-pointer font-bold"
-                  >
-                    <LogIn className="w-3.5 h-3.5" />
-                    <span>{language === 'bn' ? 'লগইন বা রেজিস্টার' : 'Login / Register'}</span>
-                  </button>
+                  {currentUser.role === 'admin' && (
+                    <button
+                      onClick={() => setActiveTab('new-delivery')}
+                      className="w-full text-left p-2 rounded-xl text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition cursor-pointer"
+                    >
+                      <Bike className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{language === 'bn' ? 'রাইডার ভিউ প্রিভিউ করুন' : 'Preview Rider View'}</span>
+                    </button>
+                  )}
 
-                  <button
-                    onClick={resetAllData}
-                    className="w-full text-left p-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>{language === 'bn' ? 'ডেমো ডেটা রিসেট' : 'Reset Demo Data'}</span>
-                  </button>
+                  {/* LOGOUT BUTTON */}
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-1 mt-1">
+                    <button
+                      onClick={logout}
+                      className="w-full text-left p-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition cursor-pointer font-bold"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>{language === 'bn' ? 'লগআউট করুন' : 'Sign Out / Logout'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Mobile Direct Logout Button */}
+            <button
+              onClick={logout}
+              className="sm:hidden p-1.5 rounded-xl border border-rose-200 dark:border-rose-900/40 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition cursor-pointer"
+              title={language === 'bn' ? 'লগআউট' : 'Logout'}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
-
-      {/* AUTH MODAL */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
     </>
   );
 };
